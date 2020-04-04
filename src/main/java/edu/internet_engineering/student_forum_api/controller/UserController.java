@@ -6,16 +6,14 @@ import edu.internet_engineering.student_forum_api.model.security.JWT;
 import edu.internet_engineering.student_forum_api.model.security.PasswordHash;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@CrossOrigin
 public class UserController {
     private UserRepository userRepository;
 

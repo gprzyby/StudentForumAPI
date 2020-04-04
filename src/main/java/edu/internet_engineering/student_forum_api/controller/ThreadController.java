@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@CrossOrigin
 public class ThreadController {
     private CategoryRepository categoryRepository;
     private ThreadRepository threadRepository;
