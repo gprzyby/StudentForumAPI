@@ -6,6 +6,8 @@ import edu.internet_engineering.student_forum_api.model.repo.CategoryRepository;
 import edu.internet_engineering.student_forum_api.model.repo.ThreadRepository;
 import edu.internet_engineering.student_forum_api.model.security.JWT;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +30,7 @@ public class CategoryController {
 
 
     @GetMapping("/categories")
-    public ResponseEntity<List<Category>> getAllCategories(@RequestParam(name = "limit", required = false) Integer limit, @RequestParam(name = "since", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd-HH-mm-SS") Date since, @RequestParam(value = "asc", required = false) String order) {
+    public ResponseEntity<List<Category>> getAllCategories(@RequestParam(name = "limit", required = false) Integer limit, @RequestParam(name = "since", required = false) Long sinceId, @RequestParam(value = "asc", required = false) String order) {
         //checking path variables
         if(limit == null) limit = 10;
         if(limit < 0) limit = 0;
@@ -37,14 +39,18 @@ public class CategoryController {
             order = "asc";
         }
 
-        if(since == null) {
-            since = new Date(0);
+        if(sinceId == null) {
+            sinceId = 0L;
         }
 
         //getting categories
-        List<Category> responseCatories = categoryRepository.getAllCategories(since, order, limit);
-
+        List<Category> responseCatories = categoryRepository.getAllCategories(sinceId, order, limit);
         return new ResponseEntity<>(responseCatories, HttpStatus.OK);
+    }
+
+    @GetMapping("/categories/pageable")
+    public ResponseEntity<Page<Category>> getCategoriesTest(Pageable pageable) {
+        return new ResponseEntity<Page<Category>>(categoryRepository.getCategoriesBy(pageable), HttpStatus.OK);
     }
 
     @PostMapping("/categories")
@@ -145,5 +151,14 @@ public class CategoryController {
         List<Thread> responseThreads = threadRepository.getThreadsWithCategory(since, id, order, limit);
 
         return new ResponseEntity<>(responseThreads, HttpStatus.OK);
+    }
+
+    @GetMapping("/categories/{id}/threads/pageable")
+    public ResponseEntity<Page<Thread>> getCategoryThreadsPageable(@PathVariable Long id, Pageable pageFilter) {
+        if (!categoryRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found");
+        }
+
+        return new ResponseEntity<>(threadRepository.findAllByCategoryId(id, pageFilter), HttpStatus.OK);
     }
 }

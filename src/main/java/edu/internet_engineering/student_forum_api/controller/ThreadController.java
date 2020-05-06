@@ -8,6 +8,8 @@ import edu.internet_engineering.student_forum_api.model.repo.ThreadRepository;
 import edu.internet_engineering.student_forum_api.model.entites.Thread;
 import edu.internet_engineering.student_forum_api.model.security.JWT;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -149,6 +151,17 @@ public class ThreadController {
         List<Post> responsePosts = postRepository.getPostsWithThread(since, id, order, limit);
 
         return new ResponseEntity<>(responsePosts, HttpStatus.OK);
+    }
+
+    @GetMapping("threads/{id}/posts/pageable")
+    public ResponseEntity<Page<Post>> getThreadPostsPaged(@PathVariable Long id, Pageable pageFilter) {
+        if(!threadRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Thread not found");
+        }
+
+        Page<Post> queriedData = postRepository.findAllByThread(id, pageFilter);
+
+        return new ResponseEntity<>(queriedData, HttpStatus.OK);
     }
 
 }
