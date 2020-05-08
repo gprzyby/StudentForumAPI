@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class PostController {
     private PostRepository postRepository;
     private ThreadRepository threadRepository;
@@ -28,7 +28,7 @@ public class PostController {
     }
 
     @PostMapping("/posts")
-    public ResponseEntity<Post> createPost(@RequestHeader String authorization, @RequestBody Post newPost) {
+    public ResponseEntity<Post> createPost(@CookieValue(value = "jwt", required = false) String authorization, @RequestBody Post newPost) {
         if(!newPost.hasRequiredFields()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Thread doesn't have title!");
         }
@@ -76,7 +76,7 @@ public class PostController {
     }
 
     @DeleteMapping("/posts/{id}")
-    public ResponseEntity<?> deletePost(@RequestHeader String authorization, @PathVariable Long id) {
+    public ResponseEntity<?> deletePost(@CookieValue(value = "jwt", required = false) String authorization, @PathVariable Long id) {
         Optional<Post> dbPostOptional = postRepository.findById(id);
         Long userId = JWT.getUserId(authorization);
 
@@ -96,7 +96,7 @@ public class PostController {
     }
 
     @PutMapping("/posts/{id}")
-    public ResponseEntity<Post> updatePost(@RequestHeader String authorization, @PathVariable Long id, @RequestBody Post postBody) {
+    public ResponseEntity<Post> updatePost(@CookieValue(value = "jwt", required = false) String authorization, @PathVariable Long id, @RequestBody Post postBody) {
         Optional<Post> dbPostOptional = postRepository.findById(id);
         Long userId = JWT.getUserId(authorization);
 

@@ -43,8 +43,11 @@ public class JWTFilter implements WebMvcConfigurer, Filter {
             }
         } else {
             System.out.println("Pre-flight");
-            response.setHeader("Access-Control-Allow-Origin", "*");
-            response.setHeader("Access-Control-Allow-Methods", "POST,GET,DELETE,PUT");
+
+            response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+            response.setHeader("Vary", "Origin");
+            response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT");
+            response.setHeader("Access-Control-Allow-Credentials", "true");
             response.setHeader("Access-Control-Max-Age", "3600");
             response.setHeader("Access-Control-Allow-Headers", "Access-Control-Expose-Headers,"+"authorization, content-type," +
                     "USERID,"+"ROLE,"+

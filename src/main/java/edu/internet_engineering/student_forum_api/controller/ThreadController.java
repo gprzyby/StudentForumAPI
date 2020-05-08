@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class ThreadController {
     private CategoryRepository categoryRepository;
     private ThreadRepository threadRepository;
@@ -35,7 +35,7 @@ public class ThreadController {
     }
 
     @PostMapping("/threads")
-    public ResponseEntity<Thread> createThread(@RequestHeader String authorization, @RequestBody Thread newThread) {
+    public ResponseEntity<Thread> createThread(@CookieValue(value = "jwt", required = false) String authorization, @RequestBody Thread newThread) {
         if(!newThread.hasRequiredFields()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Thread doesn't have required fields!");
         }
@@ -84,7 +84,7 @@ public class ThreadController {
     }
 
     @DeleteMapping("/threads/{id}")
-    public ResponseEntity<?> deleteThread(@RequestHeader String authorization, @PathVariable Long id) {
+    public ResponseEntity<?> deleteThread(@CookieValue(value = "jwt", required = false) String authorization, @PathVariable Long id) {
         Optional<Thread> dbThreadOptional = threadRepository.findById(id);
         Long userId = JWT.getUserId(authorization);
 
@@ -104,7 +104,7 @@ public class ThreadController {
     }
 
     @PutMapping("/threads/{id}")
-    public ResponseEntity<Thread> updateThread(@RequestHeader String authorization, @PathVariable Long id, @RequestBody Thread threadBody) {
+    public ResponseEntity<Thread> updateThread(@CookieValue(value = "jwt", required = false) String authorization, @PathVariable Long id, @RequestBody Thread threadBody) {
         Optional<Thread> dbThreadOptional = threadRepository.findById(id);
         Long userId = JWT.getUserId(authorization);
 

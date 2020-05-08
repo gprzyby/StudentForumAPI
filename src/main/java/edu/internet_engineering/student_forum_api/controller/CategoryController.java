@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class CategoryController {
 
     @Autowired
@@ -54,7 +54,7 @@ public class CategoryController {
     }
 
     @PostMapping("/categories")
-    public ResponseEntity<Category> createCategory(@RequestHeader String authorization, @RequestBody Category newCategory) {
+    public ResponseEntity<Category> createCategory(@CookieValue(value = "jwt", required = false) String authorization, @RequestBody Category newCategory) {
         if(!newCategory.hasRequiredFields()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category doesn't have title!");
         }
@@ -84,7 +84,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/categories/{id}")
-    public ResponseEntity<?> deleteCategory(@RequestHeader String authorization, @PathVariable Long id) {
+    public ResponseEntity<?> deleteCategory(@CookieValue(value = "jwt", required = false) String authorization, @PathVariable Long id) {
         Optional<Category> dbCategoryOptional = categoryRepository.findById(id);
         Long userId = JWT.getUserId(authorization);
 
@@ -104,7 +104,7 @@ public class CategoryController {
     }
 
     @PutMapping("/categories/{id}")
-    public ResponseEntity<Category> updateCategory(@RequestHeader String authorization, @PathVariable Long id, @RequestBody Category categoryBody) {
+    public ResponseEntity<Category> updateCategory(@CookieValue(value = "jwt", required = false) String authorization, @PathVariable Long id, @RequestBody Category categoryBody) {
         Optional<Category> dbCategoryOptional = categoryRepository.findById(id);
         Long userId = JWT.getUserId(authorization);
 
@@ -151,6 +151,15 @@ public class CategoryController {
         List<Thread> responseThreads = threadRepository.getThreadsWithCategory(since, id, order, limit);
 
         return new ResponseEntity<>(responseThreads, HttpStatus.OK);
+    }
+
+    @GetMapping("/categories/{id}/childrens/pageable")
+    public ResponseEntity<Page<Category>> getCategoryChilds(@PathVariable Long id, Pageable pageFilter) {
+        if (!categoryRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found");
+        }
+
+        return new ResponseEntity<>(categoryRepository.getCategoiresChildrens(id, pageFilter), HttpStatus.OK);
     }
 
     @GetMapping("/categories/{id}/threads/pageable")

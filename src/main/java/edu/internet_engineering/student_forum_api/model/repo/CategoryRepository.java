@@ -16,5 +16,9 @@ public interface CategoryRepository extends CrudRepository<Category, Long> {
             "CASE WHEN :orderStr = \"desc\" THEN category_id END DESC LIMIT :limitInt", nativeQuery = true)
     List<Category> getAllCategories(Long sinceId, String orderStr, Integer limitInt);
 
+    @Query("SELECT c FROM category c WHERE c.parent_id IS NULL")
     Page<Category> getCategoriesBy(Pageable pageRequest);
+
+    @Query("SELECT c FROM category c WHERE c.parent_id = :parentId")
+    Page<Category> getCategoiresChildrens(Long parentId, Pageable pageLimit);
 }

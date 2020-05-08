@@ -19,7 +19,7 @@ public class JWT {
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(actualDate);
-        cal.add(Calendar.DAY_OF_YEAR, 1);
+        cal.add(Calendar.DAY_OF_WEEK, 1);
 
         return  Jwts.builder()
                     .claim("user_id", user.getId())
@@ -31,7 +31,6 @@ public class JWT {
 
     public static Long getUserId(String token) {
         try {
-            token = token.substring(7);     //deletting "Bearer " from token
             Claims claims = Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
             return Long.valueOf(claims.get("user_id").toString());
         } catch(Exception exc) {
