@@ -81,6 +81,6 @@ public class Category {
     }
 
     public boolean hasRequiredFields() {
-        return title != null;
+        return title != null && title.length() > 0;
     }
 }

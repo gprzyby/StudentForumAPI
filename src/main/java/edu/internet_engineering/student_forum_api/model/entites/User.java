@@ -1,6 +1,8 @@
 package edu.internet_engineering.student_forum_api.model.entites;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import javax.persistence.*;
 
@@ -14,6 +16,7 @@ public class User {
     private String name;
 
     @Column(name = "password", nullable = false)
+    @JsonIgnore
     private String password;
 
     public Long getId() {
@@ -30,16 +33,18 @@ public class User {
         this.name = name;
     }
 
+    @JsonIgnore
     public String getPassword() {
         return password;
     }
 
+    @JsonSetter("password")
     public void setPassword(String password) {
         this.password = password;
     }
 
     public boolean hasRequiredFields() {
-        return name != null && password != null;
+        return name != null && password != null && name.length() > 0 && password.length() > 0;
     }
 
     public boolean hasLongNameAndPassword() {

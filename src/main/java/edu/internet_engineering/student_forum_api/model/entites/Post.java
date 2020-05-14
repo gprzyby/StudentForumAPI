@@ -72,6 +72,6 @@ public class Post {
     }
 
     public boolean hasRequiredFields() {
-        return body != null && thread != null;
+        return body != null && thread != null && body.length() > 0;
     }
 }

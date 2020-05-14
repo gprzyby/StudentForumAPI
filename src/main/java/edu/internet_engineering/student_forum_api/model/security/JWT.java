@@ -34,7 +34,7 @@ public class JWT {
             Claims claims = Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
             return Long.valueOf(claims.get("user_id").toString());
         } catch(Exception exc) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not allowed to do that. Try login as proper user");
         }
     }
 

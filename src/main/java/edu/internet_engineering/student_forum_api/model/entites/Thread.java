@@ -50,7 +50,7 @@ public class Thread {
 
     @JsonSetter("category_id")
     public void setCategoryId(Integer categoryId) {
-        this.category_id = Long.valueOf(categoryId.toString());
+        this.category_id = Long.valueOf(categoryId);
     }
 
     public String getTitle() {
@@ -88,6 +88,6 @@ public class Thread {
     }
 
     public boolean hasRequiredFields() {
-        return title != null && category_id != null;
+        return title != null && category_id != null && title.length() > 0;
     }
 }

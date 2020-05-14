@@ -13,6 +13,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
@@ -24,7 +25,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(HttpServletResponse response, @RequestBody User user) {
+    public ResponseEntity<User> registerUser(HttpServletResponse response, @RequestBody User user) {
         if(!user.hasRequiredFields()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No username or password");
         } else if(!user.hasLongNameAndPassword()) {
@@ -39,18 +40,18 @@ public class UserController {
 
         String hashedPassword = PasswordHash.hashPassword(user.getPassword());
         user.setPassword(hashedPassword);
-        userRepository.save(user);
+        user = userRepository.save(user);
 
         String token = JWT.generateJWTToken(user);
         generateCookie(response, token, 24 * 60 * 60);
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
 
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(HttpServletResponse response, @RequestBody User user) {
+    public ResponseEntity<User> loginUser(HttpServletResponse response, @RequestBody User user) {
         if(!user.hasRequiredFields()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No username or password");
         }
@@ -70,13 +71,46 @@ public class UserController {
 
         generateCookie(response, token, 24 * 60 * 60);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(existingUser, HttpStatus.OK);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logoutUser(HttpServletResponse response) {
         generateCookie(response, "", 1);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/authorized")
+    public ResponseEntity<?> logoutUser(@CookieValue(value = "jwt", required = false) String authorization) {
+        JWT.getUserId(authorization);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<User> getLoggedUser(@CookieValue(value = "jwt", required = false) String authorization) {
+        Long userId = JWT.getUserId(authorization);
+
+        Optional<User> repoUser = userRepository.findById(userId);
+
+        if(!repoUser.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with specified id doesnt exist");
+        }
+
+        return new ResponseEntity<>(repoUser.get(), HttpStatus.OK);
+    }
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity<User> getUserName(@PathVariable Long id) {
+        Optional<User> userQueried = userRepository.findById(id);
+
+        //checking if user exists
+        if(!userQueried.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+
+        User user = userQueried.get();
+
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     private static void generateCookie(HttpServletResponse response, String token, int timeout) {

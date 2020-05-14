@@ -30,7 +30,7 @@ public class PostController {
     @PostMapping("/posts")
     public ResponseEntity<Post> createPost(@CookieValue(value = "jwt", required = false) String authorization, @RequestBody Post newPost) {
         if(!newPost.hasRequiredFields()){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Thread doesn't have title!");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Post doesn't have body!");
         }
 
         Long userId = JWT.getUserId(authorization);
